@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vitality — Daily Fitness Tracker</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles -->
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <!-- React + Babel (lets the browser run JSX directly, no build step) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+  <!-- Bootstrap JS (for navbar toggler etc.) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Our app -->
+  <script type="text/babel">
+const { useState, useEffect } = React;
+
+/* ---------- Heartbeat divider (signature visual element) ---------- */
+function HeartbeatDivider() {
+  return (
+    <div className="heartbeat-wrap">
+      <svg className="heartbeat-line" viewBox="0 0 1200 46" preserveAspectRatio="none">
+        <path
+          className="heartbeat-path"
+          d="M0,23 L280,23 L310,5 L335,40 L360,10 L385,23 L470,23
+             L500,23 L530,5 L555,40 L580,10 L605,23 L1200,23"
+        />
+      </svg>
+    </div>
+  );
+}
+
+/* ---------- Navbar ---------- */
+function Navbar() {
+  return (
+    <nav className="vt-navbar">
+      <div className="container d-flex align-items-center justify-content-between">
+        <span className="vt-brand">vitality<span className="dot">.</span></span>
+        <span className="mono" style={{ color: "#CFE9E3", fontSize: "0.85rem" }}>
+          your daily health dashboard
+        </span>
+      </div>
+    </nav>
+  );
+}
+
+/* ---------- Hero ---------- */
+function Hero() {
+  return (
+    <header className="vt-hero">
+      <div className="container">
+        <div className="vt-badge">● TRACK · MOVE · HYDRATE</div>
+        <h1>
+          Small daily habits build <span className="accent">real fitness.</span>
+        </h1>
+        <p className="lead mt-3">
+          Check your BMI, keep an eye on your water intake, and log every
+          workout — all in one simple dashboard, no sign-up required.
+        </p>
+      </div>
+    </header>
+  );
+}
+
+/* ---------- BMI Calculator ---------- */
+function BmiCalculator() {
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [result, setResult] = useState(null);
+
+  function calculateBmi(e) {
+    e.preventDefault();
+    const h = parseFloat(height) / 100; // cm -> m
+    const w = parseFloat(weight);
+    if (!h || !w || h <= 0 || w <= 0) {
+      setResult(null);
+      return;
+    }
+    const bmi = w / (h * h);
+    setResult(bmi);
+  }
+
+  function getCategory(bmi) {
+    if (bmi < 18.5) return { label: "Underweight", cls: "under" };
+    if (bmi < 25) return { label: "Normal", cls: "normal" };
+    if (bmi < 30) return { label: "Overweight", cls: "over" };
+    return { label: "Obese", cls: "obese" };
+  }
+
+  const category = result ? getCategory(result) : null;
+
+  return (
+    <div className="vt-card">
+      <h3>BMI Calculator</h3>
+      <p className="vt-card-sub">Body Mass Index from your height and weight.</p>
+
+      <form onSubmit={calculateBmi}>
+        <div className="mb-3">
+          <label className="form-label">Height (cm)</label>
+          <input
+            type="number"
+            className="form-control"
+            placeholder="e.g. 170"
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+            min="1"
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Weight (kg)</label>
+          <input
+            type="number"
+            className="form-control"
+            placeholder="e.g. 65"
+            value={weight}
+            onChange={(e) => setWeight(e.target.value)}
+            min="1"
+          />
+        </div>
+        <button type="submit" className="btn btn-vt-primary w-100">
+          Calculate BMI
+        </button>
+      </form>
+
+      {result && (
+        <div className="bmi-result">
+          <span className="bmi-value">{result.toFixed(1)}</span>
+          <span className={`bmi-tag ${category.cls}`}>{category.label}</span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Water Tracker ---------- */
+function WaterTracker() {
+  const GOAL = 8; // glasses per day
+  const [glasses, setGlasses] = useState(() => {
+    const saved = localStorage.getItem("vt-water");
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  useEffect(() => {
+    localStorage.setItem("vt-water", glasses);
+  }, [glasses]);
+
+  const radius = 40;
+  const circumference = 2 * Math.PI * radius;
+  const progress = Math.min(glasses / GOAL, 1);
+  const offset = circumference * (1 - progress);
+
+  return (
+    <div className="vt-card">
+      <h3>Water Intake</h3>
+      <p className="vt-card-sub">Goal: {GOAL} glasses a day.</p>
+
+      <div className="water-ring-wrap">
+        <svg className="water-ring" viewBox="0 0 100 100">
+          <circle className="water-ring-bg" cx="50" cy="50" r={radius} />
+          <circle
+            className="water-ring-fg"
+            cx="50"
+            cy="50"
+            r={radius}
+            strokeDasharray={circumference}
+            strokeDashoffset={offset}
+          />
+          <text x="50" y="55" textAnchor="middle" className="water-ring-label">
+            {glasses}/{GOAL}
+          </text>
+        </svg>
+
+        <div>
+          <div className="water-controls mb-2">
+            <button
+              className="water-count-btn"
+              onClick={() => setGlasses((g) => Math.max(0, g - 1))}
+              aria-label="Remove a glass"
+            >
+              −
+            </button>
+            <span className="water-glasses">glasses today</span>
+            <button
+              className="water-count-btn"
+              onClick={() => setGlasses((g) => g + 1)}
+              aria-label="Add a glass"
+            >
+              +
+            </button>
+          </div>
+          {glasses >= GOAL && (
+            <div style={{ color: "#1E7A46", fontSize: "0.85rem", fontWeight: 600 }}>
+              Goal reached today 🎉
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Workout Log ---------- */
+function WorkoutLog() {
+  const [workouts, setWorkouts] = useState(() => {
+    const saved = localStorage.getItem("vt-workouts");
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [name, setName] = useState("");
+  const [duration, setDuration] = useState("");
+
+  useEffect(() => {
+    localStorage.setItem("vt-workouts", JSON.stringify(workouts));
+  }, [workouts]);
+
+  function addWorkout(e) {
+    e.preventDefault();
+    if (!name.trim() || !duration) return;
+    const newWorkout = { id: Date.now(), name: name.trim(), duration };
+    setWorkouts((w) => [newWorkout, ...w]);
+    setName("");
+    setDuration("");
+  }
+
+  function removeWorkout(id) {
+    setWorkouts((w) => w.filter((item) => item.id !== id));
+  }
+
+  return (
+    <div className="vt-card">
+      <h3>Workout Log</h3>
+      <p className="vt-card-sub">Add a workout to keep a record of your day.</p>
+
+      <form onSubmit={addWorkout} className="workout-form-row">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Workout (e.g. Running)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          type="number"
+          className="form-control"
+          placeholder="Minutes"
+          style={{ maxWidth: "110px" }}
+          value={duration}
+          onChange={(e) => setDuration(e.target.value)}
+          min="1"
+        />
+        <button type="submit" className="btn btn-vt-outline">
+          Add
+        </button>
+      </form>
+
+      {workouts.length === 0 ? (
+        <p className="workout-empty">No workouts logged yet — add your first one above.</p>
+      ) : (
+        <ul className="workout-list">
+          {workouts.map((w) => (
+            <li key={w.id} className="workout-item">
+              <span>
+                <span className="w-name">{w.name}</span>
+                <span className="w-duration">{w.duration} min</span>
+              </span>
+              <button
+                className="workout-remove"
+                onClick={() => removeWorkout(w.id)}
+                aria-label={`Remove ${w.name}`}
+              >
+                ✕
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
+/* ---------- Footer ---------- */
+function Footer() {
+  return (
+    <footer className="vt-footer">
+      Built with React + Bootstrap · Vitality Fitness Tracker
+    </footer>
+  );
+}
+
+/* ---------- App root ---------- */
+function App() {
+  return (
+    <React.Fragment>
+      <Navbar />
+      <Hero />
+      <HeartbeatDivider />
+      <main className="vt-section">
+        <div className="container">
+          <div className="vt-eyebrow">Today's dashboard</div>
+          <h2>Everything you need to check in on yourself</h2>
+          <div className="row g-4">
+            <div className="col-md-4">
+              <BmiCalculator />
+            </div>
+            <div className="col-md-4">
+              <WaterTracker />
+            </div>
+            <div className="col-md-4">
+              <WorkoutLog />
+            </div>
+          </div>
+        </div>
+      </main>
+      <Footer />
+    </React.Fragment>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+  </script>
+</body>
+</html>

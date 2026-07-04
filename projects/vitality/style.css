@@ -1,0 +1,321 @@
+:root {
+  --ink: #10302E;
+  --teal: #0F3D3E;
+  --teal-light: #17595B;
+  --mint-bg: #EAF6F0;
+  --card-bg: #FFFFFF;
+  --coral: #FF6B5D;
+  --coral-dark: #E4544A;
+  --gold: #F4B942;
+  --line: #D7EAE1;
+  --font-display: 'Poppins', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--mint-bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, .display-font {
+  font-family: var(--font-display);
+}
+
+.mono { font-family: var(--font-mono); }
+
+/* Navbar */
+.vt-navbar {
+  background: var(--teal);
+  padding: 0.9rem 0;
+}
+.vt-brand {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+.vt-brand .dot { color: var(--coral); }
+
+/* Hero */
+.vt-hero {
+  background: var(--teal);
+  color: #fff;
+  padding: 4.5rem 0 3.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.vt-hero h1 {
+  font-weight: 800;
+  font-size: clamp(2.2rem, 4vw, 3.4rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+}
+.vt-hero .accent { color: var(--coral); }
+.vt-hero p.lead {
+  color: #CFE9E3;
+  font-size: 1.15rem;
+  max-width: 34rem;
+}
+.vt-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.18);
+  color: #EAF6F0;
+  padding: 0.35rem 0.9rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.03em;
+  margin-bottom: 1.2rem;
+}
+
+/* Heartbeat divider — the signature element */
+.heartbeat-wrap {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  background: var(--teal);
+}
+.heartbeat-line {
+  width: 100%;
+  height: 46px;
+  display: block;
+}
+.heartbeat-path {
+  fill: none;
+  stroke: var(--coral);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: draw-heartbeat 2.4s ease-out forwards;
+}
+@keyframes draw-heartbeat {
+  to { stroke-dashoffset: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heartbeat-path { animation: none; stroke-dashoffset: 0; }
+}
+
+/* Section */
+.vt-section {
+  padding: 3.5rem 0;
+}
+.vt-eyebrow {
+  font-family: var(--font-mono);
+  color: var(--coral-dark);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+.vt-section h2 {
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 1.8rem;
+}
+
+/* Cards */
+.vt-card {
+  background: var(--card-bg);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 1.8rem;
+  height: 100%;
+  box-shadow: 0 1px 2px rgba(16,48,46,0.04);
+}
+.vt-card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+.vt-card .vt-card-sub {
+  color: #5B7570;
+  font-size: 0.9rem;
+  margin-bottom: 1.4rem;
+}
+
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--teal);
+}
+.form-control:focus {
+  border-color: var(--teal-light);
+  box-shadow: 0 0 0 0.2rem rgba(15,89,91,0.15);
+}
+
+.btn-vt-primary {
+  background: var(--coral);
+  border-color: var(--coral);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 10px;
+}
+.btn-vt-primary:hover {
+  background: var(--coral-dark);
+  border-color: var(--coral-dark);
+  color: #fff;
+}
+.btn-vt-outline {
+  border: 1.5px solid var(--teal);
+  color: var(--teal);
+  font-weight: 600;
+  border-radius: 10px;
+  background: transparent;
+}
+.btn-vt-outline:hover {
+  background: var(--teal);
+  color: #fff;
+}
+
+/* BMI result */
+.bmi-result {
+  margin-top: 1.4rem;
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  background: var(--mint-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.bmi-value {
+  font-family: var(--font-mono);
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--teal);
+}
+.bmi-tag {
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.bmi-tag.under { background: #FFF1D6; color: #A5720B; }
+.bmi-tag.normal { background: #DFF3E6; color: #1E7A46; }
+.bmi-tag.over { background: #FFE3D6; color: #C24A2E; }
+.bmi-tag.obese { background: #FBD9D9; color: #B23A3A; }
+
+/* Water tracker */
+.water-ring-wrap {
+  display: flex;
+  align-items: center;
+  gap: 1.4rem;
+}
+.water-ring {
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+}
+.water-ring-bg { stroke: var(--line); fill: none; stroke-width: 8; }
+.water-ring-fg {
+  stroke: var(--teal-light);
+  fill: none;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+.water-ring-label {
+  font-family: var(--font-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  fill: var(--teal);
+}
+.water-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.water-count-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1.5px solid var(--teal);
+  background: #fff;
+  color: var(--teal);
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.water-count-btn:hover { background: var(--teal); color: #fff; }
+.water-glasses {
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  color: var(--teal);
+}
+
+/* Workout log */
+.workout-form-row {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+  flex-wrap: wrap;
+}
+.workout-form-row .form-control { flex: 1; min-width: 120px; }
+
+.workout-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.workout-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--mint-bg);
+  border-radius: 12px;
+  padding: 0.7rem 1rem;
+}
+.workout-item .w-name {
+  font-weight: 600;
+  color: var(--teal);
+}
+.workout-item .w-duration {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  color: #5B7570;
+  margin-left: 0.6rem;
+}
+.workout-remove {
+  border: none;
+  background: none;
+  color: var(--coral-dark);
+  font-size: 1.1rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+}
+.workout-empty {
+  color: #8AA39D;
+  font-size: 0.9rem;
+  font-style: italic;
+  padding: 0.8rem 0;
+}
+
+footer.vt-footer {
+  background: var(--teal);
+  color: #CFE9E3;
+  padding: 1.6rem 0;
+  text-align: center;
+  font-size: 0.85rem;
+}

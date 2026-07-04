@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Threadline — Fashion, Sorted</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Announcement bar -->
+  <div class="announce-bar">FREE SHIPPING ON ORDERS ABOVE ₹999 &nbsp;•&nbsp; EASY 14-DAY RETURNS</div>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <div class="logo">THREAD<span>LINE</span></div>
+
+      <nav class="nav-links" id="navLinks">
+        <a href="#" class="cat-link active" data-cat="all">All</a>
+        <a href="#" class="cat-link" data-cat="men's clothing">Men</a>
+        <a href="#" class="cat-link" data-cat="women's clothing">Women</a>
+        <a href="#" class="cat-link" data-cat="jewelery">Accessories</a>
+        <a href="#" class="cat-link" data-cat="electronics">Gadgets</a>
+      </nav>
+
+      <div class="nav-actions">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search for products...">
+        </div>
+        <button class="icon-btn" id="wishlistBtn" aria-label="Wishlist">
+          ♥ <span class="badge" id="wishlistCount">0</span>
+        </button>
+        <button class="icon-btn" id="cartBtn" aria-label="Cart">
+          🛍 <span class="badge" id="cartCount">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-eyebrow">NEW SEASON</div>
+      <h1>Dress the<br>part.</h1>
+      <p>Curated fashion, tech, and accessories — all in one place.</p>
+      <a href="#shop" class="hero-cta">Shop Now</a>
+    </div>
+  </section>
+
+  <!-- Category strip -->
+  <section class="cat-strip" id="shop">
+    <div class="cat-strip-inner">
+      <span class="cat-strip-label">Shop by category:</span>
+      <div class="cat-chips" id="catChips"></div>
+    </div>
+  </section>
+
+  <!-- Toolbar: result count + sort -->
+  <section class="toolbar">
+    <div class="toolbar-inner">
+      <span id="resultCount" class="result-count">Loading products...</span>
+      <select id="sortSelect" class="sort-select">
+        <option value="default">Sort: Featured</option>
+        <option value="price-asc">Price: Low to High</option>
+        <option value="price-desc">Price: High to Low</option>
+        <option value="rating-desc">Customer Rating</option>
+      </select>
+    </div>
+  </section>
+
+  <!-- Product grid -->
+  <main class="product-section">
+    <div id="productGrid" class="product-grid"></div>
+  </main>
+
+  <!-- Cart drawer -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <aside class="drawer" id="cartDrawer">
+    <div class="drawer-header">
+      <h3>Your Bag</h3>
+      <button class="drawer-close" id="closeCartBtn">✕</button>
+    </div>
+    <div class="drawer-body" id="cartItems"></div>
+    <div class="drawer-footer" id="cartFooter"></div>
+  </aside>
+
+  <!-- Wishlist drawer -->
+  <aside class="drawer" id="wishlistDrawer">
+    <div class="drawer-header">
+      <h3>Your Wishlist</h3>
+      <button class="drawer-close" id="closeWishlistBtn">✕</button>
+    </div>
+    <div class="drawer-body" id="wishlistItems"></div>
+  </aside>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <footer class="site-footer">
+    Built with HTML, CSS &amp; JavaScript · Product data from Fake Store API · Demo project, no real purchases
+  </footer>
+
+<script src="script.js"></script>
+</body>
+</html>

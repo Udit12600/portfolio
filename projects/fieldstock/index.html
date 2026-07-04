@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fieldstock — Curated Goods</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600;700;900&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom styles -->
+  <link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <!-- React + Babel (browser-run JSX, no build step) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.development.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+  <!-- Bootstrap JS (offcanvas cart, toasts) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.8/js/bootstrap.bundle.min.js"></script>
+
+  <!-- App -->
+  <script type="text/babel">
+const { useState, useEffect, useMemo } = React;
+
+const API_BASE = "https://fakestoreapi.com";
+
+/* ---------- Navbar ---------- */
+function Navbar({ cartCount }) {
+  return (
+    <nav className="fs-navbar">
+      <div className="container d-flex align-items-center justify-content-between">
+        <span className="fs-brand">fieldstock<span className="dot">.</span></span>
+        <button
+          className="fs-cart-btn"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#cartOffcanvas"
+        >
+          Cart
+          {cartCount > 0 && <span className="fs-cart-count">{cartCount}</span>}
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+/* ---------- Hero ---------- */
+function Hero() {
+  return (
+    <header className="fs-hero">
+      <div className="container">
+        <div className="eyebrow">New arrivals every week</div>
+        <h1>Everyday goods, chosen with care.</h1>
+        <p>
+          Browse our full catalog — filter by category, search for what you
+          need, and add it to your cart. Nothing ships, but everything works.
+        </p>
+      </div>
+    </header>
+  );
+}
+
+/* ---------- Filter bar ---------- */
+function FilterBar({
+  categories,
+  category,
+  setCategory,
+  search,
+  setSearch,
+  sortOrder,
+  setSortOrder,
+  resultCount,
+}) {
+  return (
+    <div className="fs-filterbar">
+      <div className="container d-flex flex-wrap align-items-center gap-2">
+        <select
+          className="form-select"
+          style={{ maxWidth: "180px" }}
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="all">All categories</option>
+          {categories.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </select>
+
+        <input
+          type="text"
+          className="form-control"
+          style={{ maxWidth: "220px" }}
+          placeholder="Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
+
+        <select
+          className="form-select"
+          style={{ maxWidth: "170px" }}
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+        >
+          <option value="default">Sort: default</option>
+          <option value="price-asc">Price: low to high</option>
+          <option value="price-desc">Price: high to low</option>
+          <option value="rating-desc">Rating: high to low</option>
+        </select>
+
+        <span className="fs-result-count ms-auto">{resultCount} items</span>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Product card ---------- */
+function ProductCard({ product, onAdd }) {
+  return (
+    <div className="col-6 col-md-4 col-lg-3">
+      <div className="fs-card">
+        <div className="fs-card-img">
+          <img src={product.image} alt={product.title} loading="lazy" />
+        </div>
+        <div className="fs-card-body">
+          <span className="fs-card-category">{product.category}</span>
+          <span className="fs-card-title">{product.title}</span>
+          <div className="fs-card-footer">
+            <span className="fs-price-tag">${product.price.toFixed(2)}</span>
+            <button className="fs-add-btn" onClick={() => onAdd(product)}>
+              Add +
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Product grid ---------- */
+function ProductGrid({ loading, products, onAdd }) {
+  if (loading) {
+    return <div className="fs-loading">Loading products…</div>;
+  }
+  if (products.length === 0) {
+    return <div className="fs-empty">No products match your filters.</div>;
+  }
+  return (
+    <div className="row g-3">
+      {products.map((p) => (
+        <ProductCard key={p.id} product={p} onAdd={onAdd} />
+      ))}
+    </div>
+  );
+}
+
+/* ---------- Cart offcanvas ---------- */
+function CartOffcanvas({ cart, updateQty, removeItem, total }) {
+  return (
+    <div className="offcanvas offcanvas-end" tabIndex="-1" id="cartOffcanvas">
+      <div className="offcanvas-header">
+        <h5 className="offcanvas-title">Your Cart</h5>
+        <button type="button" className="btn-close" data-bs-dismiss="offcanvas"></button>
+      </div>
+      <div className="offcanvas-body d-flex flex-column">
+        {cart.length === 0 ? (
+          <div className="fs-cart-empty">Your cart is empty. Go find something good.</div>
+        ) : (
+          <React.Fragment>
+            <div className="flex-grow-1">
+              {cart.map((item) => (
+                <div className="fs-cart-item" key={item.id}>
+                  <img src={item.image} alt={item.title} />
+                  <div className="fs-cart-item-info">
+                    <div className="fs-cart-item-title">{item.title}</div>
+                    <div className="mono" style={{ fontSize: "0.8rem" }}>
+                      ${item.price.toFixed(2)}
+                    </div>
+                    <div className="fs-qty-controls">
+                      <button
+                        className="fs-qty-btn"
+                        onClick={() => updateQty(item.id, item.qty - 1)}
+                      >
+                        −
+                      </button>
+                      <span className="mono">{item.qty}</span>
+                      <button
+                        className="fs-qty-btn"
+                        onClick={() => updateQty(item.id, item.qty + 1)}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <button className="fs-cart-remove" onClick={() => removeItem(item.id)}>
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="fs-cart-summary">
+              <div className="fs-cart-total">
+                <span>Total</span>
+                <span>${total.toFixed(2)}</span>
+              </div>
+              <button
+                className="fs-checkout-btn"
+                onClick={() => alert("This is a demo checkout — no real payment is made.")}
+              >
+                Checkout
+              </button>
+            </div>
+          </React.Fragment>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ---------- Toast ---------- */
+function Toast({ message }) {
+  if (!message) return null;
+  return <div className="fs-toast">{message}</div>;
+}
+
+/* ---------- Footer ---------- */
+function Footer() {
+  return (
+    <footer className="fs-footer">
+      Built with React + Bootstrap · Product data from Fake Store API · Demo project, no real purchases
+    </footer>
+  );
+}
+
+/* ---------- App root ---------- */
+function App() {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [category, setCategory] = useState("all");
+  const [search, setSearch] = useState("");
+  const [sortOrder, setSortOrder] = useState("default");
+  const [toastMsg, setToastMsg] = useState("");
+
+  const [cart, setCart] = useState(() => {
+    const saved = localStorage.getItem("fs-cart");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Fetch products + categories once on load
+  useEffect(() => {
+    Promise.all([
+      fetch(`${API_BASE}/products`).then((r) => r.json()),
+      fetch(`${API_BASE}/products/categories`).then((r) => r.json()),
+    ])
+      .then(([productData, categoryData]) => {
+        setProducts(productData);
+        setCategories(categoryData);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
+
+  // Persist cart
+  useEffect(() => {
+    localStorage.setItem("fs-cart", JSON.stringify(cart));
+  }, [cart]);
+
+  // Auto-clear toast
+  useEffect(() => {
+    if (!toastMsg) return;
+    const t = setTimeout(() => setToastMsg(""), 2200);
+    return () => clearTimeout(t);
+  }, [toastMsg]);
+
+  function addToCart(product) {
+    setCart((prev) => {
+      const existing = prev.find((item) => item.id === product.id);
+      if (existing) {
+        return prev.map((item) =>
+          item.id === product.id ? { ...item, qty: item.qty + 1 } : item
+        );
+      }
+      return [...prev, { ...product, qty: 1 }];
+    });
+    setToastMsg(`Added "${product.title.slice(0, 28)}${product.title.length > 28 ? "…" : ""}" to cart`);
+  }
+
+  function updateQty(id, qty) {
+    if (qty < 1) {
+      removeItem(id);
+      return;
+    }
+    setCart((prev) => prev.map((item) => (item.id === id ? { ...item, qty } : item)));
+  }
+
+  function removeItem(id) {
+    setCart((prev) => prev.filter((item) => item.id !== id));
+  }
+
+  const filteredProducts = useMemo(() => {
+    let result = [...products];
+
+    if (category !== "all") {
+      result = result.filter((p) => p.category === category);
+    }
+    if (search.trim()) {
+      const q = search.toLowerCase();
+      result = result.filter((p) => p.title.toLowerCase().includes(q));
+    }
+    if (sortOrder === "price-asc") {
+      result.sort((a, b) => a.price - b.price);
+    } else if (sortOrder === "price-desc") {
+      result.sort((a, b) => b.price - a.price);
+    } else if (sortOrder === "rating-desc") {
+      result.sort((a, b) => (b.rating?.rate || 0) - (a.rating?.rate || 0));
+    }
+    return result;
+  }, [products, category, search, sortOrder]);
+
+  const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
+  const cartTotal = cart.reduce((sum, item) => sum + item.qty * item.price, 0);
+
+  return (
+    <React.Fragment>
+      <Navbar cartCount={cartCount} />
+      <Hero />
+      <FilterBar
+        categories={categories}
+        category={category}
+        setCategory={setCategory}
+        search={search}
+        setSearch={setSearch}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+        resultCount={filteredProducts.length}
+      />
+      <main className="fs-section">
+        <div className="container">
+          <ProductGrid loading={loading} products={filteredProducts} onAdd={addToCart} />
+        </div>
+      </main>
+      <CartOffcanvas cart={cart} updateQty={updateQty} removeItem={removeItem} total={cartTotal} />
+      <Toast message={toastMsg} />
+      <Footer />
+    </React.Fragment>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+  </script>
+</body>
+</html>
